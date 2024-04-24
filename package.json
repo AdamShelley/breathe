@@ -3,7 +3,7 @@
   "name": "breathe",
   "title": "Breathe",
   "description": "Meditation & focus. Anytime.",
-  "icon": "command-icon.png",
+  "icon": "icon.png",
   "author": "AdamS31",
   "categories": [
     "Productivity"
@@ -12,7 +12,7 @@
   "commands": [
     {
       "name": "index",
-      "title": "Show Detail",
+      "title": "Breathe",
       "description": "Open Breathe",
       "mode": "view"
     }
