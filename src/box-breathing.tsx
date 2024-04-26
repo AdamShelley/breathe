@@ -2,7 +2,7 @@ import { Detail, LocalStorage, showToast, Toast } from "@raycast/api";
 import { useEffect, useState } from "react";
 
 export default function BoxBreathing() {
-  const phases = ["Breathe In", "Hold", "Breathe Out", "Hold"];
+  const phases = ["💨 Breathe In", "🤐 Hold", "😮‍💨 Breathe Out", "🤐 Hold"];
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [seconds, setSeconds] = useState(4);
   const [completedReps, setCompletedReps] = useState(0);
@@ -11,9 +11,7 @@ export default function BoxBreathing() {
 
   useEffect(() => {
     const loadStats = async () => {
-      const savedReps = await LocalStorage.getItem("completedReps");
       const elapsedTime = await LocalStorage.getItem("totalTimeElapsed");
-      setCompletedReps(savedReps ? Number(savedReps) : 0);
       const savedTime = elapsedTime ? Number(elapsedTime) : 0;
       setTotalTimeElapsed(savedTime);
       setStartTime(Date.now() - savedTime * 1000);
@@ -30,7 +28,7 @@ export default function BoxBreathing() {
           if (nextPhaseIndex === 0) {
             setCompletedReps((prevReps) => {
               const newReps = prevReps + 1;
-              LocalStorage.setItem("completedReps", String(newReps));
+              updateTotalCompletedReps(newReps);
               return newReps;
             });
           }
@@ -40,7 +38,13 @@ export default function BoxBreathing() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [currentPhaseIndex, seconds]);
+  }, [currentPhaseIndex, seconds, completedReps]);
+
+  const updateTotalCompletedReps = async (newReps: number) => {
+    const totalRepsString = await LocalStorage.getItem("totalCompletedReps");
+    const totalReps = totalRepsString ? Number(totalRepsString) : 0;
+    LocalStorage.setItem("totalCompletedReps", String(totalReps + newReps));
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -54,12 +58,22 @@ export default function BoxBreathing() {
   const displayedPhases = () => {
     const phaseItems = [...phases];
     while (phaseItems[0] !== phases[currentPhaseIndex]) {
-      phaseItems.push(phaseItems.shift()!); // Assertion used here
+      phaseItems.push(phaseItems.shift()!);
     }
-    return phaseItems.join(" ― ");
+    return phaseItems
+      .map((phase, index) => {
+        if (index === 0) {
+          // Only bold the first item
+          return `\n\n## **${phase}**\n\n`;
+        }
+        return `*${phase}*`;
+      })
+      .join("\n\n");
   };
 
   const runHuDWarning = async () => {
+    console.log(completedReps);
+    if (completedReps === 0) return;
     const options: Toast.Options = {
       style: Toast.Style.Success,
       title: "Well done! 🎉",
@@ -71,23 +85,28 @@ export default function BoxBreathing() {
         },
       },
     };
+
     await showToast(options);
   };
 
   useEffect(() => {
-    return () => {
-      runHuDWarning();
-    };
+    runHuDWarning();
   }, []);
 
   const markdown = `
-  # ------------  📦 Box Breathing ------------
+  # 📦 Box Breathing
   
   # **${seconds}**
-  ## **${displayedPhases()}**
+  ## ${displayedPhases()}
+
+
   
+  &nbsp;
+
   ---
-  
+
+  &nbsp;
+
   **Current Rep**: ${completedReps + 1}
   
   **Reps Completed**: ${completedReps}
