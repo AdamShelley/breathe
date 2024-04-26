@@ -1,6 +1,7 @@
 import { List, ActionPanel, Action } from "@raycast/api";
 import BoxBreathing from "./box-breathing";
 import Stats from "./stats";
+import TableClock from "./ten-seconds";
 
 export default function BreathingPracticesList() {
   return (
@@ -20,10 +21,24 @@ export default function BreathingPracticesList() {
       />
 
       <List.Item
-        title="Stats"
+        title="🔟 10 Second Relief"
         accessories={[
           {
-            text: "📊",
+            text: "10",
+          },
+        ]}
+        actions={
+          <ActionPanel>
+            <Action.Push title="Start Box Breathing" target={<TableClock />} />
+          </ActionPanel>
+        }
+      />
+
+      <List.Item
+        title="📊 Stats"
+        accessories={[
+          {
+            text: "Get your deets.",
           },
         ]}
         actions={
