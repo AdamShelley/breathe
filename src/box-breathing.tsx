@@ -72,8 +72,8 @@ export default function BoxBreathing() {
   };
 
   const runHuDWarning = async () => {
-    console.log(completedReps);
     if (completedReps === 0) return;
+
     const options: Toast.Options = {
       style: Toast.Style.Success,
       title: "Well done! 🎉",
