@@ -1,51 +1,59 @@
+import { Detail, showToast, Toast, ActionPanel, Action, LocalStorage } from "@raycast/api";
 import { useState, useEffect } from "react";
-import { Detail } from "@raycast/api";
 
-export default function TableClock() {
-  const [position, setPosition] = useState(0);
+export default function CalmingTimer() {
+  const [secondsLeft, setSecondsLeft] = useState(10);
+  const [isRunning, setIsRunning] = useState<boolean>(true);
 
-  // Table dimensions
-  const size = 4; // Simple 4x4 table
-  const maxPositions = size * 4 - 4; // Number of edge cells in the table
+  const updateTotalElapsedTime = async () => {
+    const totalElapsedTimeString = await LocalStorage.getItem("totalTimeElapsed");
+    const totalElapsedTime = totalElapsedTimeString ? Number(totalElapsedTimeString) : 0;
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPosition((prevPosition) => (prevPosition + 1) % maxPositions); // Move the number clockwise
-    }, 1000); // Update every second
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
-
-  // Generate formatted markdown table with "clock pulse"
-  const generateTableMarkdown = (position: number) => {
-    let markdown = "|";
-    const totalCells = size * size;
-    let edgePosition = 0;
-
-    for (let i = 0; i < totalCells; i++) {
-      const rowEnd = (i + 1) % size === 0;
-      const isEdge = i < size || i % size === 0 || i % size === size - 1 || i >= totalCells - size;
-
-      if (isEdge) {
-        if (position === edgePosition) {
-          markdown += " **1** |";
-        } else {
-          markdown += " 0 |";
-        }
-        edgePosition++; // Only increment the edge position counter for edge cells
-      } else {
-        markdown += "   |"; // Empty inner cells
-      }
-
-      if (rowEnd && i < totalCells - 1) {
-        markdown += "\n|";
-      }
-    }
-
-    return markdown;
+    LocalStorage.setItem("totalElapsedTime", String(totalElapsedTime + 10));
   };
 
-  return <Detail markdown={generateTableMarkdown(position)} navigationTitle="Table Clock" />;
+  useEffect(() => {
+    if (isRunning && secondsLeft > 0) {
+      const intervalId = setInterval(() => {
+        setSecondsLeft((currentSeconds) => currentSeconds - 1);
+      }, 1000);
+
+      return () => clearInterval(intervalId);
+    } else if (secondsLeft === 0) {
+      showToast({
+        style: Toast.Style.Success,
+        title: "Well done!",
+        message: "Take a deep breath and carry on with your amazing day!",
+      });
+      updateTotalElapsedTime();
+      setIsRunning(false);
+    }
+  }, [secondsLeft, isRunning]);
+
+  const restartTimer = () => {
+    setSecondsLeft(10);
+    setIsRunning(true);
+  };
+
+  const markdown = `
+# 🌼 Take a moment to relax 🌼
+## Please take a deep breath and relax for a few moments.
+${"🟢".repeat(secondsLeft) + "⚪️".repeat(10 - secondsLeft)}
+
+**${secondsLeft} seconds**
+
+${secondsLeft === 0 ? "Well done, take a deep breath and carry on with your day! 🌟" : ""}
+  `;
+
+  return (
+    <Detail
+      markdown={markdown}
+      navigationTitle="Calm Down for 10 Seconds"
+      actions={
+        <ActionPanel>
+          <Action title="Restart Timer" onAction={restartTimer} icon={{ source: "command-icon.png" }} />
+        </ActionPanel>
+      }
+    />
+  );
 }

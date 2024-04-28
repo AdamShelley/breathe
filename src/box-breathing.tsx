@@ -104,10 +104,6 @@ export default function BoxBreathing() {
   &nbsp;
 
   ---
-
-  &nbsp;
-
-  **Current Rep**: ${completedReps + 1}
   
   **Reps Completed**: ${completedReps}
 

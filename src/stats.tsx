@@ -1,5 +1,4 @@
-import { Detail, LocalStorage } from "@raycast/api";
-
+import { List, LocalStorage } from "@raycast/api";
 import { useState, useEffect } from "react";
 
 const Stats: React.FC = () => {
@@ -19,7 +18,7 @@ const Stats: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
@@ -39,14 +38,12 @@ const Stats: React.FC = () => {
 
   const formattedTime = formatTime(totalTimeElapsed);
 
-  const markdown = `
-  # 📊 Stats
-  **Total Sessions Completed**: ${completedReps}
-
-  &nbsp;
-
-  **Total Breathing Time**: ${formattedTime}`;
-  return <Detail markdown={markdown} navigationTitle="Your Breathing Stats" />;
+  return (
+    <List navigationTitle="Your Breathing Stats">
+      <List.Item title="Total Sessions Completed" subtitle={`${completedReps}`} />
+      <List.Item title="Total Breathing Time" subtitle={formattedTime} />
+    </List>
+  );
 };
 
 export default Stats;
