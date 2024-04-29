@@ -8,5 +8,5 @@ To install Breathe:
 
 1. Clone this repository to your local machine:
    ```bash
-   git clone https://github.com/yourusername/calming-timer-raycast.git
+   git clone https://github.com/yourusername/breathe.git
    ```
