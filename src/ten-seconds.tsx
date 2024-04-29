@@ -1,4 +1,4 @@
-import { Detail, showToast, Toast, ActionPanel, Action, LocalStorage } from "@raycast/api";
+import { Detail, showToast, Toast, ActionPanel, Action, LocalStorage, Icon } from "@raycast/api";
 import { useState, useEffect } from "react";
 
 export default function CalmingTimer() {
@@ -36,9 +36,10 @@ export default function CalmingTimer() {
   };
 
   const markdown = `
-# 🌼 Take a moment to relax 🌼
-## Please take a deep breath and relax for a few moments.
-${"🟢".repeat(secondsLeft) + "⚪️".repeat(10 - secondsLeft)}
+  
+# Take a moment to relax 
+### Take a deep breath and relax for a few moments.
+${"●".repeat(10 - secondsLeft) + "○".repeat(secondsLeft)}
 
 **${secondsLeft} seconds**
 
@@ -51,7 +52,7 @@ ${secondsLeft === 0 ? "Well done, take a deep breath and carry on with your day!
       navigationTitle="Calm Down for 10 Seconds"
       actions={
         <ActionPanel>
-          <Action title="Restart Timer" onAction={restartTimer} icon={{ source: "command-icon.png" }} />
+          <Action title="Restart Timer" onAction={restartTimer} icon={Icon.ArrowCounterClockwise} />
         </ActionPanel>
       }
     />

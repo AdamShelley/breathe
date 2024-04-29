@@ -38,7 +38,7 @@ export default function BreathingPracticesList() {
         title="📊 Stats"
         accessories={[
           {
-            text: "Get your deets.",
+            text: "But it's not a competition.",
           },
         ]}
         actions={
