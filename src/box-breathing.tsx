@@ -68,7 +68,6 @@ export default function BoxBreathing() {
     return phaseItems
       .map((phase, index) => {
         if (index === 0) {
-          // Only bold the first item
           return `\n\n## **${phase}**\n\n`;
         }
         return `*${phase}*`;
@@ -78,7 +77,6 @@ export default function BoxBreathing() {
 
   const startBoxBreathing = () => {
     if (isTimerActive) {
-      // setIsTimerActive(false);
       setSeconds(4);
       setCompletedReps(0);
       showToast({
@@ -119,7 +117,7 @@ export default function BoxBreathing() {
 
   ---
   
-  
+
   **Reps Completed**: ${completedReps}
 
   `;

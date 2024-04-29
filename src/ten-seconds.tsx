@@ -10,6 +10,11 @@ export default function CalmingTimer() {
     const totalElapsedTime = totalElapsedTimeString ? Number(totalElapsedTimeString) : 0;
 
     LocalStorage.setItem("totalElapsedTime", String(totalElapsedTime + 10));
+
+    // Also add 1 to total completed sessions in stats
+    const totalCompletedRepsString = await LocalStorage.getItem("totalCompletedReps");
+    const totalCompletedReps = totalCompletedRepsString ? Number(totalCompletedRepsString) : 0;
+    LocalStorage.setItem("totalCompletedReps", String(totalCompletedReps + 1));
   };
 
   useEffect(() => {
@@ -35,15 +40,19 @@ export default function CalmingTimer() {
     setIsRunning(true);
   };
 
+  const progressBar = "●".repeat(10 - secondsLeft) + "○".repeat(secondsLeft);
+
   const markdown = `
-  
-# Take a moment to relax 
-### Take a deep breath and relax for a few moments.
-${"●".repeat(10 - secondsLeft) + "○".repeat(secondsLeft)}
+  # 🌟 Take a Moment to Relax 🌟
 
-**${secondsLeft} seconds**
+### Relax and watch the progress as you breathe:
+  &nbsp;
 
-${secondsLeft === 0 ? "Well done, take a deep breath and carry on with your day! 🌟" : ""}
+${progressBar} **${secondsLeft} seconds**
+
+&nbsp;
+
+${secondsLeft === 0 ? "### 🎉 Great job! Feel refreshed and continue your day! 🎉" : "### Keep breathing slowly..."}
   `;
 
   return (

@@ -1,6 +1,12 @@
-# Breathe
+**Breathe** for Raycast is a simple tool designed to guide users through relaxing, timed breathing exercises. It helps users take a short break from their busy schedules, focusing on deep breathing to reduce stress and increase focus.
 
-Meditation & focus. Anytime.
+## Features
 
-Attributions:
-<a href="https://www.flaticon.com/free-icons/religion" title="religion icons">Religion icons created by Freepik - Flaticon</a>
+## Installation
+
+To install Breathe:
+
+1. Clone this repository to your local machine:
+   ```bash
+   git clone https://github.com/yourusername/calming-timer-raycast.git
+   ```

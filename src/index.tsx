@@ -1,4 +1,4 @@
-import { List, ActionPanel, Action } from "@raycast/api";
+import { List, ActionPanel, Action, Icon } from "@raycast/api";
 import BoxBreathing from "./box-breathing";
 import Stats from "./stats";
 import TableClock from "./ten-seconds";
@@ -7,7 +7,8 @@ export default function BreathingPracticesList() {
   return (
     <List>
       <List.Item
-        title="📦 Box Breathing"
+        icon={Icon.Box}
+        title="Box Breathing"
         accessories={[
           {
             text: "4-4-4-4",
@@ -21,7 +22,8 @@ export default function BreathingPracticesList() {
       />
 
       <List.Item
-        title="🔟 10 Second Relief"
+        icon={Icon.Clock}
+        title="10 Second Relief"
         accessories={[
           {
             text: "10",
@@ -35,10 +37,11 @@ export default function BreathingPracticesList() {
       />
 
       <List.Item
-        title="📊 Stats"
+        icon={Icon.BarChart}
+        title="Stats"
         accessories={[
           {
-            text: "But it's not a competition.",
+            text: "But it's not a competition",
           },
         ]}
         actions={
