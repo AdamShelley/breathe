@@ -40,10 +40,10 @@ export default function CalmingTimer() {
     setIsRunning(true);
   };
 
-  const progressBar = "●".repeat(10 - secondsLeft) + "○".repeat(secondsLeft);
+  const progressBar = "▣".repeat(10 - secondsLeft) + "□".repeat(secondsLeft);
 
   const markdown = `
-  # 🌟 Take a Moment to Relax 🌟
+  # ◕ Take a Moment to Relax 
 
 ### Relax and watch the progress as you breathe:
   &nbsp;
