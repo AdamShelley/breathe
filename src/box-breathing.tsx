@@ -2,7 +2,8 @@ import { Detail, LocalStorage, ActionPanel, Action, Icon, showToast, Toast, Colo
 import { useEffect, useState } from "react";
 
 export default function BoxBreathing() {
-  const phases = ["💨 Breathe In", "🤐 Hold", "😮‍💨 Breathe Out", "🤐 Hold"];
+  // const phases = ["💨 Breathe In", "🤐 Hold", "😮‍💨 Breathe Out", "🤐 Hold"];  ⊙◕●
+  const phases = ["◕ Breathe In", "● Hold", "⊙ Breathe Out", "◕ Hold"];
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
   const [seconds, setSeconds] = useState(4);
   const [completedReps, setCompletedReps] = useState(0);
@@ -97,13 +98,13 @@ export default function BoxBreathing() {
 
   const showEmojiNumber = () => {
     if (seconds === 4) {
-      return "4️⃣";
+      return "4️⃣□□□□";
     } else if (seconds === 3) {
-      return "3️⃣";
+      return "3️⃣□□□";
     } else if (seconds === 2) {
-      return "2️⃣";
+      return "2️⃣□□";
     }
-    return "1️⃣";
+    return "1️⃣□";
   };
 
   const markdown = `
