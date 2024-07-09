@@ -1,4 +1,4 @@
-import { Detail, showToast, Toast, ActionPanel, Action, Icon } from "@raycast/api";
+import { Detail, showToast, Toast, ActionPanel, Action, Icon, Alert } from "@raycast/api";
 import { useState, useEffect } from "react";
 
 export default function WimHof() {
@@ -9,32 +9,29 @@ export default function WimHof() {
   const [currentBreathState, setCurrentBreathState] = useState(breathStates[0]);
   const currentRep = 1;
 
+  const breathMessage = async () => {
+    await showToast({ title: "Breath Hold", message: "Breath Hold" });
+  };
+
+  const secondsMessage = async () => {
+    await showToast({ title: "Timer Start", message: "Timer Started" });
+  };
+
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (isRunning && breaths === 10) {
-      // set breath hold timer
-      timer = setTimeout(
-        () => {
-          showToast(Toast.Style.Success, "Breath hold!");
-        },
-        secondHolds[currentRep - 1] * 1000,
-      );
-    } else if (isRunning && breaths <= 30) {
-      timer = setInterval(() => {
-        setBreaths((currentBreaths) => currentBreaths + 1);
+    if (breaths === 5) {
+      breathMessage();
+    } else if (breaths <= 30) {
+      secondsMessage();
+      setTimeout(() => {
+        setBreaths((prevBreaths) => prevBreaths + 1);
       }, 4000);
 
-      // Change text to breathe out every 2 seconds
-      const breathStateTimer = setInterval(() => {
-        setCurrentBreathState((currentState) => {
-          return currentState === breathStates[0] ? breathStates[1] : breathStates[0];
-        });
-      }, 2000);
-    } else if (breaths === 30) {
-      setIsRunning(false);
-      showToast(Toast.Style.Success, "Breath hold!");
+      if (currentBreathState === breathStates[0]) {
+        setCurrentBreathState(breathStates[1]);
+      } else {
+        setCurrentBreathState(breathStates[0]);
+      }
     }
-    return () => clearInterval(timer);
   }, [isRunning]);
 
   const startTimer = () => {
@@ -48,9 +45,8 @@ export default function WimHof() {
   const markdown = `
 # Wim Hof Meditation
 
-### Breaths: ${breaths}
-### ${currentBreathState}
-
+**Breaths**: ${breaths}
+**Current Rep**: ${currentRep}
   `;
 
   return (

@@ -8,6 +8,20 @@ export default function BreathingPracticesList() {
   return (
     <List>
       <List.Item
+        icon={Icon.Clock}
+        title="10 Second Relief"
+        accessories={[
+          {
+            text: "10",
+          },
+        ]}
+        actions={
+          <ActionPanel>
+            <Action.Push title="10 Second Timer" target={<TableClock />} />
+          </ActionPanel>
+        }
+      />
+      <List.Item
         icon={Icon.Box}
         title="Box Breathing"
         accessories={[
@@ -22,20 +36,6 @@ export default function BreathingPracticesList() {
         }
       />
 
-      <List.Item
-        icon={Icon.Clock}
-        title="10 Second Relief"
-        accessories={[
-          {
-            text: "10",
-          },
-        ]}
-        actions={
-          <ActionPanel>
-            <Action.Push title="10 Second Timer" target={<TableClock />} />
-          </ActionPanel>
-        }
-      />
       <List.Item
         icon={Icon.Clock}
         title="Wim Hof Breathing"
