@@ -1,5 +1,5 @@
 import { Detail, showToast, Toast, ActionPanel, Action, Icon, Alert } from "@raycast/api";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function WimHof() {
   const [breaths, setBreaths] = useState(1);
@@ -7,34 +7,67 @@ export default function WimHof() {
   const secondHolds = [45, 60, 90];
   const breathStates = ["Breathe In", "Breathe Out"];
   const [currentBreathState, setCurrentBreathState] = useState(breathStates[0]);
-  const currentRep = 1;
+  const [currentRep, setCurrentRep] = useState(1);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const breathMessage = async () => {
-    await showToast({ title: "Breath Hold", message: "Breath Hold" });
+  const breathMessage = async (message: string) => {
+    await showToast({ title: "Breath Hold", message: message });
   };
 
   const secondsMessage = async () => {
     await showToast({ title: "Timer Start", message: "Timer Started" });
   };
 
-  useEffect(() => {
-    if (breaths === 5) {
-      breathMessage();
-    } else if (breaths <= 30) {
-      secondsMessage();
-      setTimeout(() => {
-        setBreaths((prevBreaths) => prevBreaths + 1);
-      }, 4000);
+  const startBreathing = () => {
+    secondsMessage();
+    intervalRef.current = setInterval(() => {
+      setBreaths((prevBreaths) => prevBreaths + 1);
+    }, 3500);
+  };
 
-      if (currentBreathState === breathStates[0]) {
-        setCurrentBreathState(breathStates[1]);
-      } else {
-        setCurrentBreathState(breathStates[0]);
+  const startHold = () => {
+    if (intervalRef.current !== null) clearInterval(intervalRef.current);
+
+    timeoutRef.current = setTimeout(
+      () => {
+        breathMessage("Well done");
+        if (currentRep < 3) {
+          setCurrentRep(currentRep + 1);
+          setBreaths(1);
+          startBreathing();
+        } else {
+          setIsRunning(false);
+        }
+      },
+      secondHolds[currentRep - 1] * 1000,
+    );
+  };
+
+  useEffect(() => {
+    if (isRunning) {
+      if (breaths === 1) {
+        breathMessage("Starting Breath hold");
       }
+      if (breaths === 5) {
+        startHold();
+      } else if (breaths <= 30) {
+        startBreathing();
+      }
+    } else {
+      if (intervalRef.current !== null) clearInterval(intervalRef.current);
+      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
     }
-  }, [isRunning]);
+
+    return () => {
+      if (intervalRef.current !== null) clearInterval(intervalRef.current);
+      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
+    };
+  }, [isRunning, breaths, currentRep]);
 
   const startTimer = () => {
+    setBreaths(1);
+    setCurrentRep(1);
     setIsRunning(true);
   };
 
@@ -45,8 +78,12 @@ export default function WimHof() {
   const markdown = `
 # Wim Hof Meditation
 
+
 **Breaths**: ${breaths}
+
 **Current Rep**: ${currentRep}
+
+**Current State**: ${currentBreathState}
   `;
 
   return (
