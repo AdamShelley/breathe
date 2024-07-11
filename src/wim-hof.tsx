@@ -5,11 +5,13 @@ export default function WimHof() {
   const [breaths, setBreaths] = useState(1);
   const [isRunning, setIsRunning] = useState(false);
   const secondHolds = [45, 60, 90];
+  const [breathHeld, setBreathHeld] = useState(0);
   const breathStates = ["Breathe In", "Breathe Out"];
   const [currentBreathState, setCurrentBreathState] = useState(breathStates[0]);
   const [currentRep, setCurrentRep] = useState(1);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const breathStateRef = useRef<NodeJS.Timeout | null>(null);
 
   const breathMessage = async (message: string) => {
     await showToast({ title: "Breath Hold", message: message });
@@ -20,28 +22,54 @@ export default function WimHof() {
   };
 
   const startBreathing = () => {
-    secondsMessage();
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (breathStateRef.current) clearInterval(breathStateRef.current);
+    if (breaths === 1) secondsMessage();
+
     intervalRef.current = setInterval(() => {
       setBreaths((prevBreaths) => prevBreaths + 1);
-    }, 3500);
+    }, 4000);
+
+    breathStateRef.current = setInterval(() => {
+      setCurrentBreathState((prevBreathState) => {
+        if (prevBreathState === breathStates[0]) {
+          return breathStates[1];
+        } else {
+          return breathStates[0];
+        }
+      });
+    }, 2000);
   };
 
   const startHold = () => {
     if (intervalRef.current !== null) clearInterval(intervalRef.current);
+    if (breathStateRef.current !== null) clearInterval(breathStateRef.current);
 
-    timeoutRef.current = setTimeout(
-      () => {
-        breathMessage("Well done");
-        if (currentRep < 3) {
-          setCurrentRep(currentRep + 1);
-          setBreaths(1);
-          startBreathing();
-        } else {
-          setIsRunning(false);
+    let localBreathHeld = 0;
+
+    timeoutRef.current = setInterval(() => {
+      localBreathHeld += 1;
+      setBreathHeld(localBreathHeld);
+      console.log(localBreathHeld, secondHolds[currentRep - 1]);
+
+      setBreathHeld((prevBreathHeld) => {
+        const newBreathHeld = prevBreathHeld + 1;
+
+        if (newBreathHeld === secondHolds[currentRep - 1]) {
+          breathMessage("Well done");
+          if (currentRep < 3) {
+            setCurrentRep(currentRep + 1);
+            setBreaths(1);
+            startBreathing();
+            setBreathHeld(0);
+          } else {
+            setIsRunning(false);
+          }
         }
-      },
-      secondHolds[currentRep - 1] * 1000,
-    );
+
+        return newBreathHeld;
+      });
+    }, 1000);
   };
 
   useEffect(() => {
@@ -56,11 +84,13 @@ export default function WimHof() {
       }
     } else {
       if (intervalRef.current !== null) clearInterval(intervalRef.current);
+      if (breathStateRef.current !== null) clearInterval(breathStateRef.current);
       if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
     }
 
     return () => {
       if (intervalRef.current !== null) clearInterval(intervalRef.current);
+      if (breathStateRef.current !== null) clearInterval(breathStateRef.current);
       if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
     };
   }, [isRunning, breaths, currentRep]);
@@ -68,6 +98,7 @@ export default function WimHof() {
   const startTimer = () => {
     setBreaths(1);
     setCurrentRep(1);
+    setBreathHeld(0);
     setIsRunning(true);
   };
 
@@ -84,6 +115,8 @@ export default function WimHof() {
 **Current Rep**: ${currentRep}
 
 **Current State**: ${currentBreathState}
+
+**Breath Held**: ${breathHeld}
   `;
 
   return (
@@ -102,3 +135,6 @@ export default function WimHof() {
     />
   );
 }
+
+// Deep breath in
+// delay between breaths and the hold (few seconds) so it doesn't feel instant
