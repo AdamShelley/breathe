@@ -1,10 +1,10 @@
-import { Detail, showToast, Toast, ActionPanel, Action, Icon, Alert } from "@raycast/api";
+import { Detail, showToast, ActionPanel, Action, Icon } from "@raycast/api";
 import { useState, useEffect, useRef } from "react";
 
 export default function WimHof() {
   const [breaths, setBreaths] = useState(1);
   const [isRunning, setIsRunning] = useState(false);
-  const secondHolds = [45, 60, 90];
+  const secondHolds = [10, 15, 20];
   const [breathHeld, setBreathHeld] = useState(0);
   const breathStates = ["Breathe In", "Breathe Out"];
   const [currentBreathState, setCurrentBreathState] = useState(breathStates[0]);
@@ -48,9 +48,9 @@ export default function WimHof() {
     let localBreathHeld = 0;
 
     timeoutRef.current = setInterval(() => {
+      breathMessage("Hold");
       localBreathHeld += 1;
       setBreathHeld(localBreathHeld);
-      console.log(localBreathHeld, secondHolds[currentRep - 1]);
 
       setBreathHeld((prevBreathHeld) => {
         const newBreathHeld = prevBreathHeld + 1;
@@ -58,10 +58,14 @@ export default function WimHof() {
         if (newBreathHeld === secondHolds[currentRep - 1]) {
           breathMessage("Well done");
           if (currentRep < 3) {
-            setCurrentRep(currentRep + 1);
-            setBreaths(1);
-            startBreathing();
+            breathMessage("Take a deep breath in and hold for 15 seconds");
             setBreathHeld(0);
+
+            setTimeout(() => {
+              setBreaths(1);
+              setCurrentRep(currentRep + 1);
+              startBreathing();
+            }, 15000);
           } else {
             setIsRunning(false);
           }
