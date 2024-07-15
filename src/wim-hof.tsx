@@ -2,7 +2,7 @@ import { Detail, showToast, ActionPanel, Action, Icon } from "@raycast/api";
 import { useState, useEffect, useRef } from "react";
 
 export default function WimHof() {
-  const [breaths, setBreaths] = useState(1);
+  const [breaths, setBreaths] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const secondHolds = [10, 15, 20];
   const [breathHeld, setBreathHeld] = useState(0);
@@ -12,6 +12,7 @@ export default function WimHof() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const breathStateRef = useRef<NodeJS.Timeout | null>(null);
+  const pauseRef = useRef<NodeJS.Timeout | null>(null);
 
   const breathMessage = async (message: string) => {
     await showToast({ title: "Breath Hold", message: message });
@@ -59,11 +60,13 @@ export default function WimHof() {
           breathMessage("Well done");
           if (currentRep < 3) {
             breathMessage("Take a deep breath in and hold for 15 seconds");
+
             setBreathHeld(0);
 
             setTimeout(() => {
               setBreaths(1);
               setCurrentRep(currentRep + 1);
+              pause(3000);
               startBreathing();
             }, 15000);
           } else {
@@ -74,6 +77,14 @@ export default function WimHof() {
         return newBreathHeld;
       });
     }, 1000);
+  };
+
+  const pause = (milliseconds: number) => {
+    return new Promise((resolve) => {
+      pauseRef.current = setTimeout(resolve, milliseconds);
+    }).then(() => {
+      startBreathing();
+    });
   };
 
   useEffect(() => {
@@ -90,12 +101,14 @@ export default function WimHof() {
       if (intervalRef.current !== null) clearInterval(intervalRef.current);
       if (breathStateRef.current !== null) clearInterval(breathStateRef.current);
       if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
+      if (pauseRef.current !== null) clearTimeout(pauseRef.current);
     }
 
     return () => {
       if (intervalRef.current !== null) clearInterval(intervalRef.current);
       if (breathStateRef.current !== null) clearInterval(breathStateRef.current);
       if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
+      if (pauseRef.current !== null) clearTimeout(pauseRef.current);
     };
   }, [isRunning, breaths, currentRep]);
 
@@ -110,17 +123,24 @@ export default function WimHof() {
     setIsRunning(false);
   };
 
+  const breathHoldsCount = Math.max(secondHolds[currentRep - 1] - breathHeld, 0);
+  const breathholds = "▣".repeat(breathHeld) + "□".repeat(breathHoldsCount);
+
   const markdown = `
 # Wim Hof Meditation
 
 
-**Breaths**: ${breaths}
+**Breaths**: 
+
+${breaths}
 
 **Current Rep**: ${currentRep}
 
 **Current State**: ${currentBreathState}
 
-**Breath Held**: ${breathHeld}
+**Breath Held**: 
+
+${breathholds}  **${breathHoldsCount} seconds**
   `;
 
   return (
@@ -140,5 +160,7 @@ export default function WimHof() {
   );
 }
 
-// Deep breath in
-// delay between breaths and the hold (few seconds) so it doesn't feel instant
+// 30 breaths
+// 1 min hold
+// 15  second deep breath in
+// repeat
