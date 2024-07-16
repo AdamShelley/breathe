@@ -61,16 +61,21 @@ export default function WimHof() {
           if (currentRep < 3) {
             breathMessage("Take a deep breath in and hold for 15 seconds");
 
+            setBreaths(1);
             setBreathHeld(0);
+            setCurrentRep(currentRep + 1);
 
             setTimeout(() => {
-              setBreaths(1);
-              setCurrentRep(currentRep + 1);
               pause(3000);
               startBreathing();
             }, 15000);
           } else {
+            // Finished all reps
             setIsRunning(false);
+
+            setTimeout(() => {
+              showToast({ title: "Wim Hof Method", message: "Finished all reps" });
+            }, 3000);
           }
         }
 
@@ -132,9 +137,9 @@ export default function WimHof() {
 
 **Breaths**: 
 
-${breaths}
+${breaths ? breaths : ""}
 
-**Current Rep**: ${currentRep}
+
 
 **Current State**: ${currentBreathState}
 
