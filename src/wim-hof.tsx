@@ -6,7 +6,7 @@ export default function WimHof() {
   const [isRunning, setIsRunning] = useState(false);
   const secondHolds = [10, 15, 20];
   const [breathHeld, setBreathHeld] = useState(0);
-  const breathStates = ["Breathe In", "Breathe Out"];
+  const breathStates = ["Breathe In", "Breathe Out", "Hold Out", "Hold In"];
   const [currentBreathState, setCurrentBreathState] = useState(breathStates[0]);
   const [currentRep, setCurrentRep] = useState(1);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -23,8 +23,8 @@ export default function WimHof() {
   };
 
   const startBreathing = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (breathStateRef.current) clearInterval(breathStateRef.current);
+    clearAllIntervals();
+
     if (breaths === 1) secondsMessage();
 
     intervalRef.current = setInterval(() => {
@@ -43,8 +43,7 @@ export default function WimHof() {
   };
 
   const startHold = () => {
-    if (intervalRef.current !== null) clearInterval(intervalRef.current);
-    if (breathStateRef.current !== null) clearInterval(breathStateRef.current);
+    clearAllIntervals();
 
     let localBreathHeld = 0;
 
@@ -58,6 +57,8 @@ export default function WimHof() {
 
         if (newBreathHeld === secondHolds[currentRep - 1]) {
           breathMessage("Well done");
+          clearInterval(timeoutRef.current!);
+
           if (currentRep < 3) {
             breathMessage("Take a deep breath in and hold for 15 seconds");
 
@@ -99,21 +100,15 @@ export default function WimHof() {
       }
       if (breaths === 5) {
         startHold();
-      } else if (breaths <= 30) {
+      } else {
         startBreathing();
       }
     } else {
-      if (intervalRef.current !== null) clearInterval(intervalRef.current);
-      if (breathStateRef.current !== null) clearInterval(breathStateRef.current);
-      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
-      if (pauseRef.current !== null) clearTimeout(pauseRef.current);
+      clearAllIntervals();
     }
 
     return () => {
-      if (intervalRef.current !== null) clearInterval(intervalRef.current);
-      if (breathStateRef.current !== null) clearInterval(breathStateRef.current);
-      if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
-      if (pauseRef.current !== null) clearTimeout(pauseRef.current);
+      clearAllIntervals();
     };
   }, [isRunning, breaths, currentRep]);
 
@@ -126,6 +121,13 @@ export default function WimHof() {
 
   const stopTimer = () => {
     setIsRunning(false);
+  };
+
+  const clearAllIntervals = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (breathStateRef.current) clearInterval(breathStateRef.current);
+    if (timeoutRef.current) clearInterval(timeoutRef.current);
+    if (pauseRef.current) clearTimeout(pauseRef.current);
   };
 
   const breathHoldsCount = Math.max(secondHolds[currentRep - 1] - breathHeld, 0);
