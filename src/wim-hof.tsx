@@ -5,6 +5,7 @@ export default function WimHof() {
   const [breaths, setBreaths] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const secondHolds = [10, 15, 20];
+  const [recoveryBreath, setRecoveryBreath] = useState(0);
   const [breathHeld, setBreathHeld] = useState(0);
   const breathStates = ["Breathe In", "Breathe Out", "Hold Out", "Hold In"];
   const [currentBreathState, setCurrentBreathState] = useState(breathStates[0]);
@@ -33,65 +34,64 @@ export default function WimHof() {
 
     breathStateRef.current = setInterval(() => {
       setCurrentBreathState((prevBreathState) => {
-        if (prevBreathState === breathStates[0]) {
-          return breathStates[1];
-        } else {
-          return breathStates[0];
-        }
+        return prevBreathState === breathStates[0] ? breathStates[1] : breathStates[0];
       });
     }, 2000);
   };
 
-  const startHold = () => {
+  const startHoldOut = () => {
     clearAllIntervals();
 
-    let localBreathHeld = 0;
+    setCurrentBreathState(breathStates[2]);
+    breathMessage("Start Breath Hold");
 
+    let localBreathHeld = 0;
     timeoutRef.current = setInterval(() => {
-      breathMessage("Hold");
       localBreathHeld += 1;
       setBreathHeld(localBreathHeld);
 
-      setBreathHeld((prevBreathHeld) => {
-        const newBreathHeld = prevBreathHeld + 1;
-
-        if (newBreathHeld === secondHolds[currentRep - 1]) {
-          breathMessage("Well done");
-          clearInterval(timeoutRef.current!);
-
-          if (currentRep < 3) {
-            breathMessage("Take a deep breath in and hold for 15 seconds");
-
-            setBreaths(1);
-            setBreathHeld(0);
-            setCurrentRep(currentRep + 1);
-
-            setTimeout(() => {
-              pause(3000);
-              startBreathing();
-            }, 15000);
-          } else {
-            // Finished all reps
-            setIsRunning(false);
-
-            setTimeout(() => {
-              showToast({ title: "Wim Hof Method", message: "Finished all reps" });
-            }, 3000);
-          }
-        }
-
-        return newBreathHeld;
-      });
+      if (localBreathHeld === secondHolds[currentRep - 1]) {
+        breathMessage("Well Done");
+        clearInterval(timeoutRef.current!);
+        startHoldIn();
+      }
     }, 1000);
   };
 
-  const pause = (milliseconds: number) => {
-    return new Promise((resolve) => {
-      pauseRef.current = setTimeout(resolve, milliseconds);
-    }).then(() => {
-      startBreathing();
-    });
+  const startHoldIn = () => {
+    clearAllIntervals();
+
+    setCurrentBreathState(breathStates[3]);
+    breathMessage("Start Breath Hold");
+
+    let localBreathIn = 0;
+
+    // Trigger every second
+
+    localBreathIn += 1;
+    setRecoveryBreath(localBreathIn);
+
+    setTimeout(() => {
+      setCurrentBreathState(breathStates[0]);
+      setBreaths(0);
+      setBreathHeld(0);
+      if (currentRep < 3) {
+        setCurrentRep(currentRep + 1);
+        startBreathing();
+      } else {
+        setIsRunning(false);
+        breathMessage("Finished all reps");
+      }
+    }, 15000);
   };
+
+  // const pause = (milliseconds: number) => {
+  //   return new Promise((resolve) => {
+  //     pauseRef.current = setTimeout(resolve, milliseconds);
+  //   }).then(() => {
+  //     startBreathing();
+  //   });
+  // };
 
   useEffect(() => {
     if (isRunning) {
@@ -99,7 +99,7 @@ export default function WimHof() {
         breathMessage("Starting Breath hold");
       }
       if (breaths === 5) {
-        startHold();
+        startHoldOut();
       } else {
         startBreathing();
       }
@@ -148,6 +148,10 @@ ${breaths ? breaths : ""}
 **Breath Held**: 
 
 ${breathholds}  **${breathHoldsCount} seconds**
+
+${currentBreathState === "Hold In" ? `${recoveryBreath} seconds` : ""}
+
+
   `;
 
   return (
@@ -166,8 +170,3 @@ ${breathholds}  **${breathHoldsCount} seconds**
     />
   );
 }
-
-// 30 breaths
-// 1 min hold
-// 15  second deep breath in
-// repeat
